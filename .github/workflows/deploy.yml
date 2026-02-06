@@ -16,6 +16,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      BASE_PATH: /Flint
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +29,8 @@ jobs:
       - run: npm ci
 
       - run: npm run build
+
+      - run: npx rspack build --mode production
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -157,6 +157,7 @@ export class SiteBuilder {
             ? (processed.data.keywords as string[]).join(', ')
             : (processed.data.keywords as string | undefined));
 
+      const basePath = process.env.BASE_PATH || '';
       const pageHtml = this.templateEngine.renderPage({
         title,
         description,
@@ -166,6 +167,7 @@ export class SiteBuilder {
         frontmatter: processed.data,
         navigation: navWithActive,
         siteLabels,
+        basePath,
       });
 
       // Write output file
@@ -314,6 +316,7 @@ export class SiteBuilder {
     navigation: NavItem[],
     siteLabels: string[],
   ): void {
+    const basePath = process.env.BASE_PATH || '';
     // Group pages by label
     const labelPages = new Map<string, PageIndexEntry[]>();
     for (const entry of pageIndex) {
@@ -348,6 +351,7 @@ export class SiteBuilder {
         path: `label/${slug}`,
         navigation,
         siteLabels,
+        basePath,
       });
 
       const outputPath = join(this.config.outputDir, 'label', slug, 'index.html');
@@ -360,12 +364,13 @@ export class SiteBuilder {
    * Get URL path from file path
    */
   private getUrlPath(relativePath: string): string {
+    const basePath = process.env.BASE_PATH || '';
     // Remove .md extension and convert to URL path
     let urlPath = relativePath.replace(/\.md$/, '').replace(/\\/g, '/');
     
     // Handle index files — strip the /index part, keep the directory
     if (urlPath === 'index') {
-      return '/';
+      return basePath + '/';
     }
     if (urlPath.endsWith('/index')) {
       urlPath = urlPath.slice(0, -'/index'.length);
@@ -376,22 +381,28 @@ export class SiteBuilder {
       urlPath = '/' + urlPath;
     }
     
-    return urlPath;
+    return basePath + urlPath;
   }
 
   /**
    * Determine if a nav item is active for the current path
    */
   private isActivePath(href: string, filePath: string): boolean {
+    const basePath = process.env.BASE_PATH || '';
+    // Strip basePath from href for comparison
+    const cleanHref = basePath && href.startsWith(basePath)
+      ? (href.slice(basePath.length) || '/')
+      : href;
+
     // Convert file path to URL path
     const urlPath = '/' + filePath.replace(/\.md$/, '.html').replace(/\\/g, '/');
     
     // Handle index pages
-    if (href === '/') {
+    if (cleanHref === '/') {
       return urlPath === '/index.html' || filePath === 'index.md';
     }
     
-    return urlPath.startsWith(href + '/') || urlPath === href + '.html';
+    return urlPath.startsWith(cleanHref + '/') || urlPath === cleanHref + '.html';
   }
 }
 

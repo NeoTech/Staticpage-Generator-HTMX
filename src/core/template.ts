@@ -15,6 +15,7 @@ export interface PageData {
   cssFiles?: string[];
   jsFiles?: string[];
     siteLabels?: string[];
+  basePath?: string;
 }
 
 export interface ProcessedMarkdown {
@@ -53,6 +54,7 @@ export class TemplateEngine {
       cssFiles = [],
       jsFiles = [],
       siteLabels = [],
+      basePath = '',
     } = data;
 
     // Use frontmatter title if available, otherwise use provided title
@@ -82,6 +84,7 @@ export class TemplateEngine {
       cssFiles,
       jsFiles,
       siteLabels,
+      basePath,
     });
   }
 

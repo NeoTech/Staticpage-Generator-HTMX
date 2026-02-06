@@ -10,6 +10,7 @@ export interface LayoutProps extends ComponentProps {
   cssFiles?: string[];
   jsFiles?: string[];
   siteLabels?: string[];
+  basePath?: string;
 }
 
 /**
@@ -27,6 +28,7 @@ export class Layout extends Component<LayoutProps> {
       cssFiles = [],
       jsFiles = [],
       siteLabels = [],
+      basePath = '',
     } = this.props;
 
     const cssLinks = cssFiles
@@ -44,8 +46,9 @@ export class Layout extends Component<LayoutProps> {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     ${description ? `<meta name="description" content="${description}">` : ''}
     ${keywords ? `<meta name="keywords" content="${keywords}">` : ''}
+    <meta name="base-path" content="${basePath}">
     <title>${title}</title>
-    <link rel="stylesheet" href="/assets/main.css">
+    <link rel="stylesheet" href="${basePath}/assets/main.css">
 ${cssLinks}
 ${jsScripts}
 </head>
@@ -54,7 +57,7 @@ ${jsScripts}
         ${children}
         ${siteLabels.length > 0 ? LabelFooter.render({ labels: siteLabels }) : ''}
     </div>
-    <script src="/assets/main.js"></script>
+    <script src="${basePath}/assets/main.js"></script>
 </body>
 </html>`;
   }

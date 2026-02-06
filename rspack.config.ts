@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === 'production';
+const basePath = process.env.BASE_PATH || '';
 
 export default defineConfig({
   entry: {
@@ -13,6 +14,7 @@ export default defineConfig({
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'assets/[name].js',
+    publicPath: basePath ? `${basePath}/` : '/',
     clean: false, // Don't clean - static builder outputs to dist too
   },
   resolve: {

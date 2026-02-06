@@ -22,6 +22,11 @@ interface PageIndexEntry {
 }
 
 // --- Label Router ---
+// Base path for GitHub Pages subpath hosting (read from <meta name="base-path"> at runtime)
+function getBasePath(): string {
+  return document.querySelector('meta[name="base-path"]')?.getAttribute('content') || '';
+}
+
 // Cached page index — fetched once, reused for all label clicks
 let pageIndexCache: PageIndexEntry[] | null = null;
 
@@ -43,7 +48,7 @@ function labelSlug(text: string): string {
 async function getPageIndex(): Promise<PageIndexEntry[]> {
   if (pageIndexCache) return pageIndexCache;
 
-  const response = await fetch('/fragments/page-index.json');
+  const response = await fetch(`${getBasePath()}/fragments/page-index.json`);
   if (!response.ok) {
     console.warn('Failed to load page index:', response.statusText);
     return [];
@@ -66,7 +71,7 @@ async function handleLabelClick(label: string): Promise<void> {
     window.location.href = matches[0].url;
   } else if (matches.length > 1) {
     // Multiple matches — navigate to the label index page
-    window.location.href = `/label/${labelSlug(label)}`;
+    window.location.href = `${getBasePath()}/label/${labelSlug(label)}`;
   }
   // 0 matches — do nothing
 }
