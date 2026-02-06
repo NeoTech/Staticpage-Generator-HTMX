@@ -1,6 +1,7 @@
 ---
 title: Home
 Short-URI: home
+Template: default
 Type: page
 Category: Home
 Order: 1

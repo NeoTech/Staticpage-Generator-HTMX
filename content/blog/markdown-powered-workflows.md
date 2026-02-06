@@ -1,6 +1,7 @@
 ---
 title: Markdown-Powered Workflows
 Short-URI: markdown-workflows
+Template: blog-post
 Type: post
 Category: Tips & Tricks
 Labels:

@@ -1,6 +1,7 @@
 ---
 title: HTMX Demo
 Short-URI: htmx-demo
+Template: default
 Type: page
 Category: Documentation
 Order: 3

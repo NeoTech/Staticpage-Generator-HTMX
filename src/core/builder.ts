@@ -1,6 +1,6 @@
 import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname, extname, basename, relative } from 'path';
-import { TemplateEngine } from './template.js';
+import { MarkdownCompiler } from './markdown.js';
 import type { NavItem } from '../components/navigation.js';
 import { parseFrontmatter, type FrontmatterData } from './frontmatter.js';
 import { parsePageMetadata, type PageMetadata } from './page-metadata.js';
@@ -9,10 +9,13 @@ import { generatePageIndex, generateLabelSlug, type PageIndexEntry } from './pag
 import { generateSitemap, generateRobotsTxt } from './seo.js';
 import { rewriteAbsolutePaths } from './base-path.js';
 import { LabelIndex } from '../components/label-index.js';
+import { loadTemplatesFromDir, type TemplateContext } from '../templates/index.js';
+import type { TemplateRegistry } from '../templates/template-registry.js';
 
 export interface BuildConfig {
   contentDir: string;
   outputDir: string;
+  templatesDir?: string;
   navigation?: NavItem[];
   defaultTitle?: string;
   siteUrl?: string;
@@ -36,11 +39,14 @@ export interface ProcessedFile {
  */
 export class SiteBuilder {
   private config: BuildConfig;
-  private templateEngine: TemplateEngine;
+  private compiler: MarkdownCompiler;
+  private templateRegistry: TemplateRegistry;
 
   constructor(config: BuildConfig) {
     this.config = config;
-    this.templateEngine = new TemplateEngine();
+    this.compiler = new MarkdownCompiler();
+    const templatesDir = config.templatesDir || join(dirname(config.contentDir), 'templates');
+    this.templateRegistry = loadTemplatesFromDir(templatesDir);
   }
 
   /**
@@ -77,7 +83,7 @@ export class SiteBuilder {
    * Process a single markdown file
    */
   processFile(content: string, relativePath: string): ProcessedFile {
-    const result = this.templateEngine.processMarkdown(content, relativePath);
+    const result = this.compiler.compileWithFrontmatter(content);
     const outputPath = this.getOutputPath(relativePath);
 
     return {
@@ -142,6 +148,15 @@ export class SiteBuilder {
 
       const processed = this.processFile(content, file.relativePath);
 
+      // Parse page metadata for template selection
+      let templateName = 'default';
+      try {
+        const metadata = parsePageMetadata(content);
+        templateName = metadata.template;
+      } catch {
+        // Fall back to default template if metadata parsing fails
+      }
+
       // Build navigation with active state
       const navWithActive = navigation?.map((item: NavItem) => ({
         ...item,
@@ -162,17 +177,29 @@ export class SiteBuilder {
 
       const basePath = process.env.BASE_PATH || '';
       const rewrittenContent = rewriteAbsolutePaths(processed.html, basePath);
-      const pageHtml = this.templateEngine.renderPage({
+
+      // Build template context
+      const context: TemplateContext = {
         title,
-        description,
-        keywords,
         content: rewrittenContent,
-        path: file.relativePath,
-        frontmatter: processed.data,
-        navigation: navWithActive,
-        siteLabels,
+        description: description || '',
+        keywords: keywords || '',
         basePath,
-      });
+        navigation: navWithActive || [],
+        siteLabels,
+        frontmatter: processed.data,
+        cssFiles: [],
+        jsFiles: [],
+        author: (processed.data.Author as string) || '',
+        date: processed.data.Date ? new Date(processed.data.Date as string) : null,
+        category: (processed.data.Category as string) || '',
+        labels: Array.isArray(processed.data.Labels) ? (processed.data.Labels as string[]) : [],
+        type: ((processed.data.Type as string) || 'page') as TemplateContext['type'],
+      };
+
+      // Render with the selected template (fall back to 'default' if not found)
+      const resolvedTemplate = this.templateRegistry.has(templateName) ? templateName : 'default';
+      const pageHtml = this.templateRegistry.render(resolvedTemplate, context);
 
       // Write output file
       const outputPath = join(this.config.outputDir, processed.outputPath);
@@ -364,15 +391,25 @@ export class SiteBuilder {
         })),
       });
 
-      const pageHtml = this.templateEngine.renderPage({
+      const labelContext: TemplateContext = {
         title: `Label: ${label}`,
-        description: `All pages tagged with "${label}"`,
         content,
-        path: `label/${slug}`,
+        description: `All pages tagged with "${label}"`,
+        keywords: '',
+        basePath,
         navigation,
         siteLabels,
-        basePath,
-      });
+        frontmatter: {},
+        cssFiles: [],
+        jsFiles: [],
+        author: '',
+        date: null,
+        category: '',
+        labels: [],
+        type: 'page',
+      };
+
+      const pageHtml = this.templateRegistry.render('default', labelContext);
 
       const outputPath = join(this.config.outputDir, 'label', slug, 'index.html');
       mkdirSync(dirname(outputPath), { recursive: true });

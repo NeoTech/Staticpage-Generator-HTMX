@@ -1,6 +1,7 @@
 ---
 title: About
 Short-URI: about
+Template: default
 Type: page
 Category: Documentation
 Order: 2
@@ -48,21 +49,23 @@ Write Test → Implement → Pass Test → Refactor → Commit
 
 All features are developed test-first using Vitest.
 
-## HTMX Examples
+## HTMX on a Static Site
 
-This page includes HTMX for dynamic content loading:
+Even without a backend API, HTMX works great on static sites by loading **HTML fragments**:
 
 <button 
-  class="btn btn-primary"
-  hx-get="/api/hello" 
+  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+  hx-get="/fragments/about-greeting.html" 
   hx-target="#greeting"
   hx-swap="innerHTML">
   Say Hello
 </button>
 
 <div id="greeting" class="mt-4 p-4 bg-gray-100 rounded">
-  Click the button to load content dynamically!
+  Click the button to load a static HTML fragment!
 </div>
+
+The trick is pre-building small `.html` fragments at build time and serving them as static files. See the [HTMX Demo](/htmx) for more examples.
 
 ## Source Code
 

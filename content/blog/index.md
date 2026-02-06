@@ -1,6 +1,7 @@
 ---
 title: Blog
 Short-URI: blog
+Template: default
 Type: section
 Category: Blog
 Order: 4

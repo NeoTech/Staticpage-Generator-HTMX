@@ -23,16 +23,23 @@ This is a **TypeScript Static Site Generator** that compiles Markdown files into
 
 ```
 ├── content/           # Markdown content files
+├── templates/         # HTML page templates ({{tag}} syntax)
+│   ├── default.html         # Standard page layout
+│   ├── blank.html           # Minimal shell
+│   └── blog-post.html       # Article layout with byline
 ├── src/
 │   ├── components/    # Reusable UI components
 │   │   ├── component.ts      # Base Component class
-│   │   ├── layout.ts         # Page layout wrapper
 │   │   └── navigation.ts     # Navigation component
 │   ├── core/          # Core functionality
 │   │   ├── frontmatter.ts    # YAML frontmatter parser
 │   │   ├── markdown.ts       # Markdown compiler (marked)
-│   │   ├── template.ts       # Template engine
 │   │   └── builder.ts        # Site builder
+│   ├── templates/     # Template engine
+│   │   ├── tag-engine.ts     # {{tag}} resolver
+│   │   ├── template-registry.ts # Registry + loader
+│   │   ├── helpers.ts        # Shared HTML helpers
+│   │   └── index.ts          # Exports
 │   ├── styles/        # CSS styles
 │   └── test/          # Test utilities
 ├── scripts/           # Build scripts
@@ -96,10 +103,11 @@ Content files use YAML frontmatter:
 ```markdown
 ---
 title: My Page
-description: A description
-author: John Doe
-date: 2024-01-15
-tags:
+Template: default
+Description: A description
+Author: John Doe
+Date: 2024-01-15
+Labels:
   - typescript
   - web
 ---
@@ -109,7 +117,28 @@ tags:
 Regular **markdown** content.
 ```
 
-### 5. HTMX Patterns
+### 5. Creating Templates
+
+Templates are plain HTML files in `templates/` using `{{tag}}` placeholders:
+
+```html
+{{head}}
+<body class="bg-white">
+    {{#if navigation}}{{navigation}}{{/if}}
+    <main>{{content}}</main>
+    {{#if label-footer}}{{label-footer}}{{/if}}
+    {{foot-scripts}}
+</body>
+</html>
+```
+
+Available tags: `{{head}}`, `{{navigation}}`, `{{content}}`, `{{label-footer}}`, `{{foot-scripts}}`, `{{blog-header}}`, `{{title}}`, `{{description}}`, `{{author}}`, `{{category}}`, `{{formatted-date}}`, `{{reading-time}}`, `{{category-pill}}`, `{{label-badges}}`, `{{basePath}}`, `{{keywords}}`.
+
+Conditionals: `{{#if tagName}}...{{/if}}` renders block only when tag is non-empty.
+
+To add a new template: create `templates/<name>.html`, then set `Template: <name>` in content frontmatter.
+
+### 6. HTMX Patterns
 
 Use HTMX for dynamic interactions:
 
@@ -172,9 +201,15 @@ Use HTMX for dynamic interactions:
 ### Adding a New Page
 
 1. Create Markdown file in `content/`
-2. Add frontmatter with title
+2. Add frontmatter with title and `Template` field
 3. Run `npm run build`
 4. Page appears in `dist/`
+
+### Adding a Template
+
+1. Create `templates/<name>.html` using `{{tag}}` placeholders
+2. Set `Template: <name>` in content frontmatter
+3. Run `npm run build` — no TypeScript needed
 
 ### Adding a Component
 
@@ -182,7 +217,8 @@ Use HTMX for dynamic interactions:
 2. Write tests
 3. Create implementation: `src/components/my-component.ts`
 4. Export from appropriate index file
-5. Run tests to verify
+5. To use in templates, add a new tag to `src/templates/tag-engine.ts`
+6. Run tests to verify
 
 ### Modifying the Build
 

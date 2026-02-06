@@ -135,6 +135,29 @@ Order: abc
       expect(result.order).toBe(999);
     });
 
+    it('should parse Template field', () => {
+      const input = `---
+Short-URI: test
+Template: blog-post
+---
+
+# Test`;
+
+      const result = parsePageMetadata(input);
+      expect(result.template).toBe('blog-post');
+    });
+
+    it('should default Template to "default" when missing', () => {
+      const input = `---
+Short-URI: test
+---
+
+# Test`;
+
+      const result = parsePageMetadata(input);
+      expect(result.template).toBe('default');
+    });
+
     it('should throw on invalid Type', () => {
       const input = `---
 Short-URI: test

@@ -1,6 +1,7 @@
 ---
 title: Static Sites Are Back
 Short-URI: static-sites-back
+Template: blog-post
 Type: post
 Category: Deep Dives
 Labels:

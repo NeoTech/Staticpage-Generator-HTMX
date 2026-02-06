@@ -8,17 +8,38 @@ describe('SiteBuilder', () => {
   let tempDir: string;
   let contentDir: string;
   let outputDir: string;
+  let templatesDir: string;
   let builder: SiteBuilder;
+
+  /** Write a minimal default.html template to the temp templates dir. */
+  function writeTestTemplates(dir: string): void {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'default.html'), [
+      '{{head}}',
+      '<body class="min-h-screen bg-gray-50">',
+      '    <div id="app" class="flex flex-col min-h-screen">',
+      '        {{#if navigation}}{{navigation}}{{/if}}',
+      '        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{{content}}</main>',
+      '        {{#if label-footer}}{{label-footer}}{{/if}}',
+      '    </div>',
+      '    {{foot-scripts}}',
+      '</body>',
+      '</html>',
+    ].join('\n'));
+  }
 
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), 'site-builder-test-'));
     contentDir = join(tempDir, 'content');
     outputDir = join(tempDir, 'dist');
+    templatesDir = join(tempDir, 'templates');
     mkdirSync(contentDir, { recursive: true });
+    writeTestTemplates(templatesDir);
     
     const config: BuildConfig = {
       contentDir,
       outputDir,
+      templatesDir,
       navigation: [
         { label: 'Home', href: '/' },
         { label: 'About', href: '/about' },
@@ -377,6 +398,7 @@ title: About Us
       const seoBuilder = new SiteBuilder({
         contentDir,
         outputDir,
+        templatesDir,
         siteUrl: 'https://example.com',
       });
       await seoBuilder.build();

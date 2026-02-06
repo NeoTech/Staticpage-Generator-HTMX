@@ -1,6 +1,7 @@
 ---
 title: Tailwind Component Patterns
 Short-URI: tailwind-patterns
+Template: blog-post
 Type: post
 Category: Tutorials
 Labels:

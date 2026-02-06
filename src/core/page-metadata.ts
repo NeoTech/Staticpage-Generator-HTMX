@@ -14,6 +14,7 @@ export interface PageMetadata {
   date: Date | null;
   description: string;
   keywords: string[];
+  template: string;
 }
 
 const VALID_TYPES: PageType[] = ['page', 'post', 'section'];
@@ -66,6 +67,7 @@ export function parsePageMetadata(content: string): PageMetadata {
     date: data['Date'] ? new Date(data['Date'] as string) : null,
     description: (data['Description'] as string) || '',
     keywords,
+    template: (data['Template'] as string) || 'default',
   };
 }
 

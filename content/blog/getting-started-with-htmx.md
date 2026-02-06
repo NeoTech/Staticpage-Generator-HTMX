@@ -1,6 +1,7 @@
 ---
 title: Getting Started with HTMX
 Short-URI: getting-started-htmx
+Template: blog-post
 Type: post
 Category: Tutorials
 Labels:
