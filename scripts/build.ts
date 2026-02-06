@@ -7,6 +7,7 @@ const config: BuildConfig = {
   contentDir: join(process.cwd(), 'content'),
   outputDir: join(process.cwd(), 'dist'),
   defaultTitle: 'My Static Site',
+  siteUrl: process.env.SITE_URL || '',
 };
 
 /**

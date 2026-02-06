@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASE_PATH: /Flint
+      SITE_URL: https://neotech.github.io
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +31,7 @@ jobs:
 
       - run: npm run build
 
-      - run: npx rspack build --mode production
+      - run: NODE_OPTIONS='--import tsx' npx rspack build --mode production
 
       - uses: actions/upload-pages-artifact@v3
         with:

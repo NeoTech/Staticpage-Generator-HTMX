@@ -362,4 +362,42 @@ title: About Us
       expect(result).toBe('blog/tutorials/index.html');
     });
   });
+
+  describe('SEO files', () => {
+    it('should generate robots.txt and sitemap.xml when siteUrl is set', async () => {
+      writeFileSync(join(contentDir, 'index.md'), [
+        '---',
+        'title: Home',
+        'Short-URI: /',
+        'date: 2024-01-15',
+        '---',
+        '# Home',
+      ].join('\n'));
+
+      const seoBuilder = new SiteBuilder({
+        contentDir,
+        outputDir,
+        siteUrl: 'https://example.com',
+      });
+      await seoBuilder.build();
+
+      expect(existsSync(join(outputDir, 'robots.txt'))).toBe(true);
+      expect(existsSync(join(outputDir, 'sitemap.xml'))).toBe(true);
+
+      const robots = readFileSync(join(outputDir, 'robots.txt'), 'utf-8');
+      expect(robots).toContain('User-agent: *');
+      expect(robots).toContain('Sitemap: https://example.com/sitemap.xml');
+
+      const sitemap = readFileSync(join(outputDir, 'sitemap.xml'), 'utf-8');
+      expect(sitemap).toContain('<loc>https://example.com/</loc>');
+    });
+
+    it('should not generate SEO files when siteUrl is empty', async () => {
+      writeFileSync(join(contentDir, 'index.md'), '---\ntitle: Home\n---\n# Home');
+      await builder.build();
+
+      expect(existsSync(join(outputDir, 'robots.txt'))).toBe(false);
+      expect(existsSync(join(outputDir, 'sitemap.xml'))).toBe(false);
+    });
+  });
 });

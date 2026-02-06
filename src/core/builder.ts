@@ -6,6 +6,7 @@ import { parseFrontmatter, type FrontmatterData } from './frontmatter.js';
 import { parsePageMetadata, type PageMetadata } from './page-metadata.js';
 import { processChildrenDirectives, type ChildPageData } from './children-directive.js';
 import { generatePageIndex, generateLabelSlug, type PageIndexEntry } from './page-index.js';
+import { generateSitemap, generateRobotsTxt } from './seo.js';
 import { LabelIndex } from '../components/label-index.js';
 
 export interface BuildConfig {
@@ -13,6 +14,7 @@ export interface BuildConfig {
   outputDir: string;
   navigation?: NavItem[];
   defaultTitle?: string;
+  siteUrl?: string;
 }
 
 export interface ContentFile {
@@ -189,6 +191,22 @@ export class SiteBuilder {
 
     // Generate label index pages for labels with 2+ pages
     this.generateLabelIndexPages(pageIndex, navigation, siteLabels);
+
+    // Generate robots.txt and sitemap.xml for SEO
+    const basePath = process.env.BASE_PATH || '';
+    const siteUrl = this.config.siteUrl || process.env.SITE_URL || '';
+    if (siteUrl) {
+      writeFileSync(
+        join(this.config.outputDir, 'robots.txt'),
+        generateRobotsTxt(siteUrl, basePath),
+        'utf-8',
+      );
+      writeFileSync(
+        join(this.config.outputDir, 'sitemap.xml'),
+        generateSitemap(pageIndex, siteUrl, basePath),
+        'utf-8',
+      );
+    }
   }
 
   /**
