@@ -28,7 +28,7 @@ export class Navigation extends Component<NavigationProps> {
       .map(item => {
         const isActive = item.active;
         const linkClasses = this.classNames(
-          'px-4 py-2 text-sm font-medium transition-colors duration-200',
+          'px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-colors duration-200',
           isActive
             ? 'text-blue-600 bg-blue-50'
             : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
@@ -43,7 +43,7 @@ export class Navigation extends Component<NavigationProps> {
 
     return `<nav class="${navClasses}">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex space-x-4 h-16 items-center">
+        <div class="flex flex-wrap gap-1 sm:gap-2 py-3 sm:py-0 sm:h-16 items-center">
 ${itemsHtml}
         </div>
     </div>

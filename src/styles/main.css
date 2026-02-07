@@ -18,15 +18,15 @@
   }
   
   h1 {
-    @apply text-4xl mb-6;
+    @apply text-2xl sm:text-4xl mb-6;
   }
   
   h2 {
-    @apply text-3xl mb-4 mt-8;
+    @apply text-xl sm:text-3xl mb-4 mt-8;
   }
   
   h3 {
-    @apply text-2xl mb-3 mt-6;
+    @apply text-lg sm:text-2xl mb-3 mt-6;
   }
   
   p {
@@ -61,7 +61,8 @@
   }
   
   pre {
-    @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+    @apply bg-gray-900 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto mb-4 text-sm;
+    max-width: 100%;
   }
   
   pre code {
@@ -73,13 +74,16 @@
     @apply border-l-4 border-gray-300 pl-4 italic my-4 text-gray-700;
   }
   
-  /* Table styles */
+  /* Table styles — wrap in scrollable container for mobile */
   table {
     @apply w-full border-collapse mb-4;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   th, td {
-    @apply border border-gray-300 px-4 py-2 text-left;
+    @apply border border-gray-300 px-3 py-2 text-left text-sm sm:text-base sm:px-4;
   }
   
   th {
@@ -93,6 +97,11 @@
   /* Horizontal rule */
   hr {
     @apply my-8 border-gray-300;
+  }
+
+  /* Prevent content overflow on mobile */
+  img, video, iframe, embed, object {
+    @apply max-w-full h-auto;
   }
 }
 
